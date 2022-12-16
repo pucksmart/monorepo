@@ -1,8 +1,8 @@
 package dev.pucksmart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.pucksmart.nhlapi.ShiftsApi;
-import dev.pucksmart.nhlapi.StatsApi;
+import dev.pucksmart.extract.nhlapi.ShiftsApi;
+import dev.pucksmart.extract.nhlapi.StatsApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

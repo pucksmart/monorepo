@@ -1,6 +1,6 @@
 package dev.pucksmart;
 
-import dev.pucksmart.nhlapi.stats.StatsSeason;
+import dev.pucksmart.extract.nhlapi.stats.StatsSeason;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

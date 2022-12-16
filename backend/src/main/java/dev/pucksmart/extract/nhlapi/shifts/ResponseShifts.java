@@ -1,4 +1,4 @@
-package dev.pucksmart.nhlapi.shifts;
+package dev.pucksmart.extract.nhlapi.shifts;
 
 import lombok.Data;
 

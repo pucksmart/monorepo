@@ -1,8 +1,8 @@
 package dev.pucksmart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.pucksmart.nhlapi.StatsApi;
-import dev.pucksmart.nhlapi.stats.StatsSeason;
+import dev.pucksmart.extract.nhlapi.StatsApi;
+import dev.pucksmart.extract.nhlapi.stats.StatsSeason;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

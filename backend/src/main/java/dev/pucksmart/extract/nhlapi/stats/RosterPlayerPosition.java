@@ -1,4 +1,4 @@
-package dev.pucksmart.nhlapi.stats;
+package dev.pucksmart.extract.nhlapi.stats;
 
 import lombok.Data;
 

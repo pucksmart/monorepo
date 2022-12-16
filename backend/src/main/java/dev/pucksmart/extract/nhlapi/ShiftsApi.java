@@ -1,6 +1,6 @@
-package dev.pucksmart.nhlapi;
+package dev.pucksmart.extract.nhlapi;
 
-import dev.pucksmart.nhlapi.shifts.ResponseShifts;
+import dev.pucksmart.extract.nhlapi.shifts.ResponseShifts;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
