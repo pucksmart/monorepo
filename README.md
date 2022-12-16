@@ -1,8 +1,10 @@
 pucksmart monorepo
-------
+======
+
+When importing to IntelliJ, open the backend directory not the whole repo
 
 Running Locally
-======
+------
 
 To run the infrastructure, kafka and mongodb:
 
