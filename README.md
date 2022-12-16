@@ -17,6 +17,10 @@ sdk install java 22.3.r17-grl
 Running Locally
 ------
 
+If you don't have Docker installed use the following command to install it on the command line: 
+
+brew install --cask docker
+
 To run the infrastructure, kafka and mongodb:
 
 ```
