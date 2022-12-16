@@ -41,6 +41,17 @@ services:
       - zoo1
     # volumes:
     #   - "./data/kafka:/var/lib/kafka/data"
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: pucksmart
+      POSTGRES_PASSWORD: pucksmart
+    ports:
+      - '5432:5432'
+    # volumes: 
+    #   - "./data/postgres:/var/lib/postgresql/data"
   
   mongodb:
     image: "mongo:5.0"
