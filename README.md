@@ -20,7 +20,7 @@ Running Locally
 To run the infrastructure, kafka and mongodb:
 
 ```
-docker-compose up
+docker-compose start || docker-compose up -d
 ```
 
 When you are done, shut down with:
