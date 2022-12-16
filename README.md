@@ -26,3 +26,5 @@ To run the application, after you `cd backend`:
 ```
 
 OR run the main class `BackendApplication` from IntelliJ
+
+Make a `GET` request to: `http://localhost:8080/stats/list-seasons`
