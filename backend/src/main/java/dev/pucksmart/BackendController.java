@@ -17,18 +17,23 @@ public class BackendController {
     final KafkaTemplate<String, String> kafkaTemplate;
     final ObjectMapper objectMapper;
     final StatsApi statsApi;
+    final SeasonRepository seasonRepository;
 
-    public BackendController(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, StatsApi statsApi) {
+    public BackendController(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, StatsApi statsApi, SeasonRepository seasonRepository) {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
         this.statsApi = statsApi;
+        this.seasonRepository = seasonRepository;
     }
 
     @GetMapping("/stats/list-seasons")
     String listSeasons() throws IOException {
         List<StatsSeason> seasons = Objects.requireNonNull(statsApi.listSeasons().execute().body()).getSeasons();
         for (StatsSeason season : seasons) {
-            kafkaTemplate.send("seasons", objectMapper.writeValueAsString(season));
+            //kafkaTemplate.send("seasons", objectMapper.writeValueAsString(season));
+            Season newSeason = new Season();
+            newSeason.setId(season.getSeasonId());
+            seasonRepository.save(newSeason);
         }
         return "OK";
     }
