@@ -1,16 +1,14 @@
 package dev.pucksmart;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.pucksmart.extract.nhlapi.ShiftsApi;
 import dev.pucksmart.extract.nhlapi.StatsApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ImportRuntimeHints;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@ImportRuntimeHints(GraalHints.class)
 @SpringBootApplication
 public class BackendApplication {
 
@@ -18,27 +16,19 @@ public class BackendApplication {
         SpringApplication.run(BackendApplication.class, args);
     }
 
-    // All Retrofit interfaces need to be added to the GraalHints
     @Bean
-    public StatsApi nhlStatsApi(ObjectMapper objectMapper) {
-        Retrofit retrofit =
-                new Retrofit.Builder()
-                        .baseUrl("https://statsapi.web.nhl.com")
-                        .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                        .build();
+    public StatsApi nhlStatsApi() {
+        WebClient client = WebClient.builder().baseUrl("https://statsapi.web.nhl.com").build();
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(client)).build();
 
-        return retrofit.create(StatsApi.class);
+        return factory.createClient(StatsApi.class);
     }
 
     @Bean
-    public ShiftsApi nhlShiftsApi(ObjectMapper objectMapper) {
-        Retrofit retrofit =
-                new Retrofit.Builder()
-                        .baseUrl("https://api.nhle.com")
-                        .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                        .build();
+    public ShiftsApi nhlShiftsApi() {
+        WebClient client = WebClient.builder().baseUrl("https://api.nhle.com").build();
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(client)).build();
 
-        return retrofit.create(ShiftsApi.class);
+        return factory.createClient(ShiftsApi.class);
     }
-    // All Retrofit interfaces need to be added to the GraalHints
 }

@@ -1,11 +1,10 @@
 package dev.pucksmart.extract.nhlapi;
 
 import dev.pucksmart.extract.nhlapi.shifts.ResponseShifts;
-import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.Path;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.service.annotation.GetExchange;
 
 public interface ShiftsApi {
-    @GET("/stats/rest/en/shiftcharts?cayenneExp=gameId={gameId}")
-    Call<ResponseShifts> getGameShifts(@Path("gameId") long gameId);
+    @GetExchange("/stats/rest/en/shiftcharts?cayenneExp=gameId={gameId}")
+    ResponseShifts getGameShifts(@PathVariable long gameId);
 }
