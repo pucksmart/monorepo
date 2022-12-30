@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class MessageHandlers {
-    @KafkaListener(topics = "seasons")
-    public void handleSeason(StatsSeason season) {
-        log.info(season.getSeasonId());
-    }
+  @KafkaListener(topics = "seasons")
+  public void handleSeason(StatsSeason season) {
+    log.info(season.getSeasonId());
+  }
 }

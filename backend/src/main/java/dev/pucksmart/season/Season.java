@@ -1,11 +1,16 @@
-package dev.pucksmart.extract.nhlapi.stats;
+package dev.pucksmart.season;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.time.LocalDate;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class StatsSeason {
-  String seasonId;
+@EqualsAndHashCode
+@Entity
+public class Season {
+  @Id String id;
   LocalDate regularSeasonStartDate;
   LocalDate regularSeasonEndDate;
   LocalDate seasonEndDate;

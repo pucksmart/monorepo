@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RosterPlayerInfo {
-    long id;
-    String fullName;
-    String link;
+  long id;
+  String fullName;
+  String link;
 }

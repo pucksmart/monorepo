@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RosterPlayer {
-    RosterPlayerInfo person;
-    String jerseyNumber;
-    RosterPlayerPosition position;
+  RosterPlayerInfo person;
+  String jerseyNumber;
+  RosterPlayerPosition position;
 }
