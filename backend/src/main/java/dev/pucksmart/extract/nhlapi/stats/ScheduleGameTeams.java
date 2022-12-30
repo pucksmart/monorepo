@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ScheduleGameTeams {
-    ScheduleGameTeam away;
-    ScheduleGameTeam home;
+  ScheduleGameTeam away;
+  ScheduleGameTeam home;
 }

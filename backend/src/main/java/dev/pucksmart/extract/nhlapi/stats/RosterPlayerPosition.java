@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class RosterPlayerPosition {
-    String code;
-    String name;
-    String type;
-    String abbreviation;
+  String code;
+  String name;
+  String type;
+  String abbreviation;
 }

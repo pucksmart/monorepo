@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class PlayByPlayPlays {
-    List<PlayByPlayPlay> allPlays;
+  List<PlayByPlayPlay> allPlays;
 }

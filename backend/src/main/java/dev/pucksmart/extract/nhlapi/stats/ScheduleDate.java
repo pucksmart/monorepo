@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 public class ScheduleDate {
-    LocalDate date;
-    List<ScheduleGame> games;
+  LocalDate date;
+  List<ScheduleGame> games;
 }

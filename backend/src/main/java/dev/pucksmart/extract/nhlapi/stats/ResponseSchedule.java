@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class ResponseSchedule {
-    List<ScheduleDate> dates;
+  List<ScheduleDate> dates;
 }

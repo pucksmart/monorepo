@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ResponsePlayByPlay {
-    long gamePk;
-    PlayByPlayLiveData liveData;
+  long gamePk;
+  PlayByPlayLiveData liveData;
 }

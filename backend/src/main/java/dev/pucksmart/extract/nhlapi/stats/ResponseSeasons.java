@@ -7,5 +7,5 @@ import java.util.List;
 
 @Data
 public class ResponseSeasons {
-    List<StatsSeason> seasons = new ArrayList<>();
+  List<StatsSeason> seasons = new ArrayList<>();
 }
