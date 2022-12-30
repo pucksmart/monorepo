@@ -1,9 +1,8 @@
 package dev.pucksmart.extract.nhlapi.stats;
 
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class ScheduleDate {

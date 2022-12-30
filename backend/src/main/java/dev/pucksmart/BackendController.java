@@ -4,12 +4,11 @@ import dev.pucksmart.extract.nhlapi.StatsApi;
 import dev.pucksmart.extract.nhlapi.stats.StatsSeason;
 import dev.pucksmart.season.Season;
 import dev.pucksmart.season.SeasonRepository;
+import java.util.List;
+import java.util.Objects;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Objects;
 
 @RestController
 public class BackendController {
