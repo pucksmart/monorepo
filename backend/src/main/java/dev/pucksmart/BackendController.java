@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class BackendController {
 
-  final KafkaTemplate<String, StatsSeason> kafkaTemplate;
+  final KafkaTemplate<String, String> kafkaTemplate;
   final StatsApi statsApi;
   final SeasonRepository seasonRepository;
 
   public BackendController(
-      KafkaTemplate<String, StatsSeason> kafkaTemplate,
+      KafkaTemplate<String, String> kafkaTemplate,
       StatsApi statsApi,
       SeasonRepository seasonRepository) {
     this.kafkaTemplate = kafkaTemplate;
@@ -42,7 +42,7 @@ public class BackendController {
       newSeason.setDivisionsInUse(season.getDivisionsInUse());
       newSeason.setWildCardInUse(season.getWildCardInUse());
       seasonRepository.save(newSeason);
-      kafkaTemplate.send("seasons", season);
+      kafkaTemplate.send("seasons", season.getSeasonId());
     }
     return "OK";
   }

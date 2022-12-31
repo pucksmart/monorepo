@@ -10,6 +10,9 @@ import dev.pucksmart.game.GameRepository;
 import dev.pucksmart.game.GameStatus;
 import dev.pucksmart.game.GameType;
 import java.time.LocalDate;
+
+import dev.pucksmart.season.Season;
+import dev.pucksmart.season.SeasonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,11 +25,12 @@ import org.springframework.stereotype.Component;
 public class MessageHandlers {
   final KafkaTemplate<String, String> stringKafkaTemplate;
   final StatsApi statsApi;
+  final SeasonRepository seasonRepository;
   final GameRepository gameRepository;
 
   @KafkaListener(topics = "seasons")
-  public void handleSeason(StatsSeason season) {
-    //    log.info(season.getSeasonId());
+  public void handleSeason(String seasonId) {
+    Season season = seasonRepository.findById(seasonId).orElseThrow();
     LocalDate temp = season.getRegularSeasonStartDate();
     stringKafkaTemplate.send("gamedays", temp.toString());
     while (!temp.plusDays(1).isAfter(LocalDate.now())
@@ -37,7 +41,7 @@ public class MessageHandlers {
   }
 
   @KafkaListener(topics = "gamedays")
-  public void handleSeason(String date) {
+  public void handleGameday(String date) {
     ResponseSchedule response = statsApi.getScheduleForDate(date);
     if (!response.getDates().isEmpty()) {
       ScheduleDate scheduleDate = response.getDates().get(0);
