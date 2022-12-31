@@ -30,7 +30,7 @@ public class BackendController {
   String listSeasons() {
     List<StatsSeason> seasons = Objects.requireNonNull(statsApi.listSeasons()).getSeasons();
     for (StatsSeason season : seasons) {
-      Season newSeason = new Season();
+      Season newSeason = seasonRepository.findById(season.getSeasonId()).orElseGet(Season::new);
       newSeason.setId(season.getSeasonId());
       newSeason.setRegularSeasonStartDate(season.getRegularSeasonStartDate());
       newSeason.setRegularSeasonEndDate(season.getRegularSeasonEndDate());

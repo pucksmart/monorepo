@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ScheduleGame {
-  Long gamePk;
+  String gamePk;
   String gameType;
   String season;
   Instant gameDate;

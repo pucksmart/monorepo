@@ -18,7 +18,7 @@ public class ScheduleGameTeam {
 
   @Data
   public static class Team {
-    long id;
+    String id;
     String name;
   }
 }
