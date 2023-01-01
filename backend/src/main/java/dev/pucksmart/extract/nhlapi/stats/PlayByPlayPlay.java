@@ -12,39 +12,44 @@ public class PlayByPlayPlay {
   Team team;
 
   @Data
-  public class PlayerEntry {
+  public static class PlayerEntry {
     String playerType;
+    Player player;
   }
 
   @Data
-  public class Player {
-    long id;
+  public static class Player {
+    String id;
   }
 
   @Data
-  public class EventResult {
+  public static class EventResult {
     String eventTypeId;
     String description;
     String secondaryType;
     Boolean gameWinningGoal;
     Boolean emptyNet;
+    Integer penaltyMinutes;
+    String penaltySeverity;
   }
 
   @Data
-  public class EventMetadata {
+  public static class EventMetadata {
+    long eventIdx;
+    long eventId;
     int period;
     String periodType;
     String periodTime;
   }
 
   @Data
-  public class Coordinates {
-    int x;
-    int y;
+  public static class Coordinates {
+    Double x;
+    Double y;
   }
 
   @Data
-  public class Team {
-    long id;
+  public static class Team {
+    long String;
   }
 }

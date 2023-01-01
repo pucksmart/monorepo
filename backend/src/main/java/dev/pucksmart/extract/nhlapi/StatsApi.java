@@ -20,5 +20,5 @@ public interface StatsApi {
       @PathVariable("teamId") long teamId, @RequestParam("season") String seasonId);
 
   @GetExchange("/api/v1/game/{gameId}/feed/live")
-  ResponsePlayByPlay getGamePlayByPlayEvents(@PathVariable("gameId") long gameId);
+  ResponsePlayByPlay getGamePlayByPlayEvents(@PathVariable("gameId") String gameId);
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -44,6 +45,12 @@ public class BackendController {
       seasonRepository.save(newSeason);
       kafkaTemplate.send("seasons", season.getSeasonId());
     }
+    return "OK";
+  }
+
+  @GetMapping("/stats/game/{gameId}")
+  String scanGame(@PathVariable String gameId) {
+    kafkaTemplate.send("games", gameId);
     return "OK";
   }
 }

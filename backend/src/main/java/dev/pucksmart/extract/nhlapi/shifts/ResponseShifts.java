@@ -5,5 +5,5 @@ import lombok.Data;
 
 @Data
 public class ResponseShifts {
-  List<Shift> data;
+  List<ShiftsShift> data;
 }

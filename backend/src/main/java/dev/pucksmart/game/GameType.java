@@ -1,10 +1,11 @@
 package dev.pucksmart.game;
 
 public enum GameType {
-  PRESEASON("?"),
+  PRESEASON("PR"),
   REGULAR_SEASON("R"),
   POSTSEASON("P"),
-  ALL_STAR("A");
+  ALL_STAR("A"),
+  POSTPONED("Postponed");
 
   private final String letter;
 

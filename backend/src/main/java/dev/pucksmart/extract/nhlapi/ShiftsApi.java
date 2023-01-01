@@ -6,5 +6,5 @@ import org.springframework.web.service.annotation.GetExchange;
 
 public interface ShiftsApi {
   @GetExchange("/stats/rest/en/shiftcharts?cayenneExp=gameId={gameId}")
-  ResponseShifts getGameShifts(@PathVariable long gameId);
+  ResponseShifts getGameShifts(@PathVariable String gameId);
 }

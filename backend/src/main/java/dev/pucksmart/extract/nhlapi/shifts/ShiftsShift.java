@@ -3,13 +3,13 @@ package dev.pucksmart.extract.nhlapi.shifts;
 import lombok.Data;
 
 @Data
-public class Shift {
-  long id;
+public class ShiftsShift {
+  Long id;
   String duration;
   String endTime;
   int eventNumber;
   int period;
-  long playerId;
+  String playerId;
   String startTime;
-  long teamId;
+  String teamId;
 }
