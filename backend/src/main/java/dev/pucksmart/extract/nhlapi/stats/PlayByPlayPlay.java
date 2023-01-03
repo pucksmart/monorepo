@@ -50,6 +50,8 @@ public class PlayByPlayPlay {
 
   @Data
   public static class Team {
-    long String;
+    String id;
+    String name;
+    String triCode;
   }
 }

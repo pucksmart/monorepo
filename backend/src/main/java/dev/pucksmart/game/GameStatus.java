@@ -2,8 +2,11 @@ package dev.pucksmart.game;
 
 public enum GameStatus {
   SCHEDULED("Scheduled"),
+  PRE_GAME("Pre-Game"),
   IN_PROGRESS("In Progress"),
-  FINAL("Final");
+  IN_PROGRESS_CRITICAL("In Progress - Critical"),
+  FINAL("Final"),
+  POSTPONED("Postponed");
 
   private final String description;
 

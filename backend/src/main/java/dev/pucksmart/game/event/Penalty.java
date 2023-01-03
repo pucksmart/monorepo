@@ -20,6 +20,7 @@ public class Penalty {
   int period;
   String periodTime;
   int minuteLength;
+  Integer lengthSeconds;
   String infraction;
 
   Double xCoordinate;

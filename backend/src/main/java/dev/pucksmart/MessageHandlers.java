@@ -11,7 +11,11 @@ import dev.pucksmart.game.GameStatus;
 import dev.pucksmart.game.GameType;
 import dev.pucksmart.game.event.Penalty;
 import dev.pucksmart.game.event.PenaltyRepository;
+import dev.pucksmart.game.event.ShotAttempt;
+import dev.pucksmart.game.event.ShotAttemptRepository;
 import dev.pucksmart.game.shift.Shift;
+import dev.pucksmart.game.shift.ShiftOverlap;
+import dev.pucksmart.game.shift.ShiftOverlapRepository;
 import dev.pucksmart.game.shift.ShiftRepository;
 import dev.pucksmart.season.Season;
 import dev.pucksmart.season.SeasonRepository;
@@ -34,18 +38,18 @@ public class MessageHandlers {
   final SeasonRepository seasonRepository;
   final GameRepository gameRepository;
   final ShiftRepository shiftRepository;
+  final ShiftOverlapRepository shiftOverlapRepository;
   final PenaltyRepository penaltyRepository;
+  final ShotAttemptRepository shotAttemptRepository;
 
   @KafkaListener(topics = "seasons")
   public void handleSeason(String seasonId) {
     log.info("seasons({})", seasonId);
     Season season = seasonRepository.findById(seasonId).orElseThrow();
-    LocalDate temp = season.getRegularSeasonStartDate();
-    stringKafkaTemplate.send("gamedays", temp.toString());
-    while (!temp.plusDays(1).isAfter(LocalDate.now())
-        && !temp.plusDays(1).isAfter(season.getSeasonEndDate())) {
-      temp = temp.plusDays(1);
+    LocalDate temp = season.getSeasonEndDate();
+    while (!temp.isBefore(season.getRegularSeasonStartDate())) {
       stringKafkaTemplate.send("gamedays", temp.toString());
+      temp = temp.plusDays(-1);
     }
   }
 
@@ -80,9 +84,9 @@ public class MessageHandlers {
 
   @KafkaListener(topics = "games")
   public void handleGames(String gameId) {
-    log.info("games({})", gameId);
-    stringKafkaTemplate.send("game-shifts", gameId);
-    stringKafkaTemplate.send("game-events", gameId);
+    //    log.info("games({})", gameId);
+    //    stringKafkaTemplate.send("game-shifts", gameId);
+    //    stringKafkaTemplate.send("game-events", gameId);
   }
 
   @KafkaListener(topics = "game-shifts")
@@ -107,6 +111,60 @@ public class MessageHandlers {
       shifts.add(shift);
     }
     shiftRepository.saveAll(shifts);
+    //    stringKafkaTemplate.send("post-game-shifts", gameId);
+  }
+
+  @KafkaListener(topics = "post-game-shifts")
+  public void handlePostGameShifts(String gameId) {
+    log.info("post-game-shifts({})", gameId);
+    Object[] shifts =
+        shiftRepository.findAllByGameId(gameId).stream()
+            .map(
+                shift -> {
+                  shift.setStartTimeSeconds(TimeUtils.secondsFromClockTime(shift.getStartTime()));
+                  shift.setEndTimeSeconds(TimeUtils.secondsFromClockTime(shift.getEndTime()));
+                  shift.setDurationSeconds(shift.getEndTimeSeconds() - shift.getStartTimeSeconds());
+                  return shiftRepository.save(shift);
+                })
+            .toArray();
+
+    for (int i = 0; i < shifts.length; i++) {
+      Shift shiftI = (Shift) shifts[i];
+      for (int j = 0; j < shifts.length; j++) {
+        Shift shiftJ = (Shift) shifts[j];
+        if (i == j) {
+          continue;
+        }
+        if (shiftI.getDuration() != null
+            && shiftJ.getDuration() != null
+            && shiftI.getPeriod() == shiftJ.getPeriod()
+            && shiftI.getStartTimeSeconds() >= shiftJ.getStartTimeSeconds()
+            && shiftI.getStartTimeSeconds() < shiftJ.getEndTimeSeconds()) {
+          //          log.info("overlapping\n{}\n{}", shifts[i].toString(), shifts[j].toString());
+          ShiftOverlap shiftOverlap =
+              shiftOverlapRepository
+                  .findById(ShiftOverlap.id(shiftI.getId(), shiftJ.getId()))
+                  .orElseGet(() -> new ShiftOverlap(shiftI.getId(), shiftJ.getId()));
+          shiftOverlap.setGameId(gameId);
+          shiftOverlap.setPeriod(shiftI.getPeriod());
+          shiftOverlap.setShift1PlayerId(shiftI.getPlayerId());
+          shiftOverlap.setShift1TeamId(shiftI.getTeamId());
+          shiftOverlap.setShift1StartTimeSeconds(shiftI.getStartTimeSeconds());
+          shiftOverlap.setShift1EndTimeSeconds(shiftI.getEndTimeSeconds());
+          shiftOverlap.setShift2PlayerId(shiftJ.getPlayerId());
+          shiftOverlap.setShift2TeamId(shiftJ.getTeamId());
+          shiftOverlap.setShift2StartTimeSeconds(shiftJ.getStartTimeSeconds());
+          shiftOverlap.setShift2EndTimeSeconds(shiftJ.getEndTimeSeconds());
+          shiftOverlap.setStartTimeSeconds(
+              Math.max(shiftI.getStartTimeSeconds(), shiftJ.getStartTimeSeconds()));
+          shiftOverlap.setEndTimeSeconds(
+              Math.min(shiftI.getEndTimeSeconds(), shiftJ.getEndTimeSeconds()));
+          shiftOverlap.setDuration(
+              shiftOverlap.getEndTimeSeconds() - shiftOverlap.getStartTimeSeconds());
+          shiftOverlapRepository.save(shiftOverlap);
+        }
+      }
+    }
   }
 
   @KafkaListener(topics = "game-events")
@@ -114,39 +172,76 @@ public class MessageHandlers {
     log.info("game-events({})", gameId);
     ResponsePlayByPlay responsePlayByPlay = statsApi.getGamePlayByPlayEvents(gameId);
     List<Penalty> penalties = new ArrayList<>();
+    List<ShotAttempt> shotAttempts = new ArrayList<>();
     for (PlayByPlayPlay playByPlayPlay :
         responsePlayByPlay.getLiveData().getPlays().getAllPlays()) {
       switch (playByPlayPlay.getResult().getEventTypeId()) {
-        case "PENALTY" -> {
-          Penalty penalty =
-              penaltyRepository
-                  .findById(Penalty.id(gameId, playByPlayPlay.getAbout().getEventIdx()))
-                  .orElseGet(() -> new Penalty(gameId, playByPlayPlay.getAbout().getEventIdx()));
-          penalty.setGameId(gameId);
-          if (playByPlayPlay.getPlayers() != null) {
-            playByPlayPlay
-                .getPlayers()
-                .forEach(
-                    player -> {
-                      if (player.getPlayerType().equals("PenaltyOn")) {
-                        penalty.setPlayerId(player.getPlayer().getId());
-                      } else if (player.getPlayerType().equals("DrewBy")) {
-                        penalty.setDrawnByPlayerId(player.getPlayer().getId());
-                      }
-                    });
-          }
-          penalty.setPeriod(playByPlayPlay.getAbout().getPeriod());
-          penalty.setPeriodTime(playByPlayPlay.getAbout().getPeriodTime());
-          penalty.setMinuteLength(playByPlayPlay.getResult().getPenaltyMinutes());
-          penalty.setInfraction(playByPlayPlay.getResult().getSecondaryType());
-          penalty.setXCoordinate(playByPlayPlay.getCoordinates().getX());
-          penalty.setYCoordinate(playByPlayPlay.getCoordinates().getY());
-          penalties.add(penalty);
-        }
-        case "FACEOFF" -> {}
+        case "PENALTY" -> penalties.add(buildPenalty(gameId, playByPlayPlay));
+        case "MISSED_SHOT", "BLOCKED_SHOT", "SHOT", "GOAL" -> shotAttempts.add(
+            buildShotAttempt(gameId, playByPlayPlay));
         default -> {}
       }
     }
     penaltyRepository.saveAll(penalties);
+    shotAttemptRepository.saveAll(shotAttempts);
+  }
+
+  private Penalty buildPenalty(String gameId, PlayByPlayPlay playByPlayPlay) {
+    Penalty penalty =
+        penaltyRepository
+            .findById(Penalty.id(gameId, playByPlayPlay.getAbout().getEventIdx()))
+            .orElseGet(() -> new Penalty(gameId, playByPlayPlay.getAbout().getEventIdx()));
+    penalty.setGameId(gameId);
+    if (playByPlayPlay.getPlayers() != null) {
+      playByPlayPlay
+          .getPlayers()
+          .forEach(
+              player -> {
+                if (player.getPlayerType().equals("PenaltyOn")) {
+                  penalty.setPlayerId(player.getPlayer().getId());
+                } else if (player.getPlayerType().equals("DrewBy")) {
+                  penalty.setDrawnByPlayerId(player.getPlayer().getId());
+                }
+              });
+    }
+    penalty.setPeriod(playByPlayPlay.getAbout().getPeriod());
+    penalty.setPeriodTime(playByPlayPlay.getAbout().getPeriodTime());
+    penalty.setMinuteLength(playByPlayPlay.getResult().getPenaltyMinutes());
+    penalty.setLengthSeconds(playByPlayPlay.getResult().getPenaltyMinutes() * 60);
+    penalty.setInfraction(playByPlayPlay.getResult().getSecondaryType());
+    penalty.setXCoordinate(playByPlayPlay.getCoordinates().getX());
+    penalty.setYCoordinate(playByPlayPlay.getCoordinates().getY());
+    return penalty;
+  }
+
+  private ShotAttempt buildShotAttempt(String gameId, PlayByPlayPlay playByPlayPlay) {
+    ShotAttempt shotAttempt =
+        shotAttemptRepository
+            .findById(ShotAttempt.id(gameId, playByPlayPlay.getAbout().getEventIdx()))
+            .orElseGet(() -> new ShotAttempt(gameId, playByPlayPlay.getAbout().getEventIdx()));
+    shotAttempt.setGameId(gameId);
+    shotAttempt.setPeriod(playByPlayPlay.getAbout().getPeriod());
+    shotAttempt.setTime(playByPlayPlay.getAbout().getPeriodTime());
+    shotAttempt.setTimeSeconds(
+        TimeUtils.secondsFromClockTime(playByPlayPlay.getAbout().getPeriodTime()));
+    shotAttempt.setShotResult(playByPlayPlay.getResult().getEventTypeId());
+    shotAttempt.setShooterTeamId(playByPlayPlay.getTeam().getId());
+    if (playByPlayPlay.getPlayers() != null) {
+      playByPlayPlay
+          .getPlayers()
+          .forEach(
+              player -> {
+                switch (player.getPlayerType()) {
+                  case "Shooter", "Scorer" -> shotAttempt.setShooterPlayerId(
+                      player.getPlayer().getId());
+                  case "Goalie", "Unknown" -> shotAttempt.setGoaliePlayerId(
+                      player.getPlayer().getId());
+                  case "Blocker" -> shotAttempt.setBlockerPlayerId(player.getPlayer().getId());
+                }
+              });
+    }
+    shotAttempt.setXCoordinate(playByPlayPlay.getCoordinates().getX());
+    shotAttempt.setYCoordinate(playByPlayPlay.getCoordinates().getY());
+    return shotAttempt;
   }
 }

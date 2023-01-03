@@ -1,7 +1,7 @@
 package dev.pucksmart.season;
 
-import org.springframework.data.repository.CrudRepository;
+import dev.pucksmart.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SeasonRepository extends CrudRepository<Season, String> {}
+public interface SeasonRepository extends BaseRepository<Season, String> {}

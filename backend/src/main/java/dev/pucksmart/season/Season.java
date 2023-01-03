@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode
 @Entity
-public class Season {
+public class Season implements Comparable<Season> {
   @Id String id;
   LocalDate regularSeasonStartDate;
   LocalDate regularSeasonEndDate;
@@ -20,4 +20,9 @@ public class Season {
   Boolean conferencesInUse;
   Boolean divisionsInUse;
   Boolean wildCardInUse;
+
+  @Override
+  public int compareTo(Season o) {
+    return regularSeasonStartDate.compareTo(o.regularSeasonStartDate);
+  }
 }

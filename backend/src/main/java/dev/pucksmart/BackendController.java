@@ -4,8 +4,7 @@ import dev.pucksmart.extract.nhlapi.StatsApi;
 import dev.pucksmart.extract.nhlapi.stats.StatsSeason;
 import dev.pucksmart.season.Season;
 import dev.pucksmart.season.SeasonRepository;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +29,7 @@ public class BackendController {
   @GetMapping("/stats/list-seasons")
   String listSeasons() {
     List<StatsSeason> seasons = Objects.requireNonNull(statsApi.listSeasons()).getSeasons();
+    List<Season> seasonsToSave = new ArrayList<>();
     for (StatsSeason season : seasons) {
       Season newSeason = seasonRepository.findById(season.getSeasonId()).orElseGet(Season::new);
       newSeason.setId(season.getSeasonId());
@@ -42,9 +42,13 @@ public class BackendController {
       newSeason.setConferencesInUse(season.getConferencesInUse());
       newSeason.setDivisionsInUse(season.getDivisionsInUse());
       newSeason.setWildCardInUse(season.getWildCardInUse());
-      seasonRepository.save(newSeason);
-      kafkaTemplate.send("seasons", season.getSeasonId());
+      seasonsToSave.add(newSeason);
     }
+    seasonRepository.saveAll(seasonsToSave);
+    seasonsToSave.stream()
+        .sorted(Comparator.comparing(Season::getRegularSeasonStartDate))
+        .sorted(Comparator.reverseOrder())
+        .forEach((s) -> kafkaTemplate.send("seasons", s.getId()));
     return "OK";
   }
 

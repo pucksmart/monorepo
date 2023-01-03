@@ -74,7 +74,8 @@ spotless {
         endWithNewline()
     }
     java {
-        // don't need to set target, it is inferred from java
+        importOrder()
+        removeUnusedImports()
 
         // apply a specific flavor of google-java-format
         googleJavaFormat('1.15.0').reflowLongStrings()

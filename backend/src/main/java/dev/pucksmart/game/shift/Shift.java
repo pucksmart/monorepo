@@ -20,10 +20,13 @@ public class Shift {
   String gameId;
   int eventNumber;
 
-  String duration;
   int period;
   String startTime;
+  int startTimeSeconds;
   String endTime;
+  int endTimeSeconds;
+  String duration;
+  Integer durationSeconds;
 
   String playerId;
   String teamId;
